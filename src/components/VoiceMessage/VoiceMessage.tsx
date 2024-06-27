@@ -26,7 +26,9 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       setAudioFiles((prevFiles) => [...prevFiles, ...audioFiles]);
     },
     accept: {
-      "audio/*": [".wav", ".mp3", ".webm"],
+      "audio/webm": [".webm"],
+      "audio/wav": [".wav"],
+      "audio/mpeg": [".mp3"],
     },
   });
 
@@ -95,17 +97,37 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   return (
     <div className="max-w-lg mx-auto p-4 bg-white shadow rounded-lg">
-      <div
-        className={`p-4 mb-4 rounded cursor-pointer text-center transition-colors ${
-          recording ? "bg-red-100" : "bg-blue-100"
-        }`}
-        onClick={recording ? handleStopRecording : handleStartRecording}
-      >
-        <div className="flex justify-center items-center gap-2 text-blue-700">
+      <div className="flex flex-col gap-4 mb-4">
+        <button
+          className="p-4 rounded bg-green-100 text-green-700 hover:bg-green-200 flex items-center justify-center gap-2"
+          onClick={handleStartRecording}
+        >
           <FaMicrophone size={24} />
-          {recording ? `Stop Recording (${timeLeft}s)` : "Record Voice Message"}
+          Record
+        </button>
+        <div
+          {...getRootProps()}
+          className="p-4 rounded bg-yellow-100 text-yellow-700 hover:bg-yellow-200 cursor-pointer flex items-center justify-center gap-2"
+        >
+          <input {...getInputProps()} />
+          <FaCloudUploadAlt size={24} />
+          Upload Pre-recorded Audio
         </div>
       </div>
+
+      {recording && (
+        <div
+          className={`p-4 mb-4 rounded cursor-pointer text-center transition-colors ${
+            recording ? "bg-red-100" : "bg-blue-100"
+          }`}
+          onClick={handleStopRecording}
+        >
+          <div className="flex justify-center items-center gap-2 text-blue-700">
+            <FaMicrophone size={24} />
+            Stop Recording ({timeLeft}s)
+          </div>
+        </div>
+      )}
 
       {audioBlob && (
         <div className="mt-4 text-center">
@@ -123,19 +145,6 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
         </div>
       )}
 
-      <div
-        className={`p-4 mt-4 rounded cursor-pointer text-center transition-colors ${
-          isDragActive ? "bg-green-100" : "bg-gray-100"
-        }`}
-        {...getRootProps()}
-      >
-        <input {...getInputProps()} />
-        <div className="flex justify-center items-center gap-2 text-gray-700">
-          <FaCloudUploadAlt size={24} />
-          Upload Pre-recorded Audio
-        </div>
-      </div>
-
       {audioFiles.length > 0 && (
         <div className="mt-6">
           <h2 className="text-lg font-semibold mb-2">Uploaded Audio Files</h2>
@@ -143,16 +152,15 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
             <table className="w-full table-auto">
               <thead>
                 <tr>
-                  <th className="px-4 py-2 text-left">File Name</th>
-                  <th className="px-4 py-2 text-left">Playback</th>
+                  <th className="px-4 py-2 text-left">File</th>
                 </tr>
               </thead>
               <tbody>
                 {audioFiles.map((file) => (
                   <tr key={file.name}>
-                    <td className="border px-4 py-2">{file.name}</td>
                     <td className="border px-4 py-2">
-                      <audio controls className="w-full">
+                      <div>{file.name}</div>
+                      <audio controls className="w-full mt-2">
                         <source
                           src={URL.createObjectURL(file)}
                           type={file.type}

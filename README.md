@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# POC Voice Attachment
 
-## Getting Started
+### Implementing Voice Message Upload Feature
 
-First, run the development server:
+This POC demonstrates the functionality of the voice message attachment feature, showcasing potential capabilities like recording, uploading, and playing audio messages. This feature should be compatible with the platforms that we are targeting:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Windows PC (Chrome, Firefox)
+- Windows Tablet (Chrome, Firefox)
+- Mac PC (Chrome, Firefox)
+- iPad (Chrome, Firefox)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Recording Voice Messages**:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   - Users can record voice messages.
+   - Recording will automatically stop to limit the length. It can be configured to a maximum limit, such as 300 seconds.
 
-## Learn More
+2. **Uploading Pre-recorded Audio Files**:
 
-To learn more about Next.js, take a look at the following resources:
+   - Users can upload existing audio files from their device.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Audio Playback**:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   - Users can play back recorded or uploaded audio files.
 
-## Deploy on Vercel
+#### Supported Audio Formats
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To ensure compatibility across all specified platforms, we can support the following audio formats.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- **WebM**
+- **MP3**
+- **WAV**
+
+#### Challenges and Difficulties
+
+From the POC, we can conclude that the challenges and difficulties will be minimal. However, for recording from the user's device, the app will require permission from the user, which will be done through a popup where the user needs to click on the "Allow" button. You can experience this using the POC deployment link below. Regarding cross-browser compatibility, it should be okay with our target OS and browsers but will require real device testing.
+
+#### POC Deployment
+
+The POC has been deployed to Vercel and can be accessed at the following link: [poc-voice-attachment.vercel.app](https://poc-voice-attachment.vercel.app/)

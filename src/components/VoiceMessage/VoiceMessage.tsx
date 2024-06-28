@@ -19,6 +19,12 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
   const timerRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const supportedFormats = [
+    { mimeType: "audio/webm;codecs=opus", extension: "webm" },
+    { mimeType: "audio/ogg;codecs=opus", extension: "ogg" },
+    { mimeType: "audio/mpeg", extension: "mp3" },
+  ];
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
       const audioFiles = acceptedFiles.filter((file) =>
@@ -26,13 +32,10 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       );
       setAudioFiles((prevFiles) => [...prevFiles, ...audioFiles]);
     },
-    accept: {
-      "audio/ogg": [".ogg"],
-      "audio/wav": [".wav"],
-      "audio/mpeg": [".mp3"],
-      "audio/webm": [".webm"],
-      "audio/mp4": [".m4a", ".mp4"],
-    },
+    accept: supportedFormats.reduce((acc, format) => {
+      acc[format.mimeType.split(";")[0]] = [`.${format.extension}`];
+      return acc;
+    }, {} as { [key: string]: string[] }),
   });
 
   useEffect(() => {
@@ -50,15 +53,16 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleStartRecording = async () => {
     try {
-      const mimeType = "audio/ogg;codecs=opus";
-
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        alert("OGG format is not supported on this device.");
+      const format = supportedFormats.find(({ mimeType }) =>
+        MediaRecorder.isTypeSupported(mimeType)
+      );
+      if (!format) {
+        alert("No supported audio formats found. Recording cannot start.");
         return;
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType });
+      const recorder = new MediaRecorder(stream, { mimeType: format.mimeType });
       setMediaRecorder(recorder);
 
       recorder.ondataavailable = (event) => {
@@ -94,9 +98,14 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleUpload = () => {
     if (audioBlob) {
-      const file = new File([audioBlob], `recording-${Date.now()}.ogg`, {
-        type: "audio/ogg",
-      });
+      const format = supportedFormats.find(
+        ({ mimeType }) => mimeType === audioBlob.type
+      );
+      const file = new File(
+        [audioBlob],
+        `recording-${Date.now()}.${format?.extension}`,
+        { type: audioBlob.type }
+      );
       setAudioFiles((prevFiles) => [...prevFiles, file]);
       setAudioBlob(null);
       setAudioUrl(null);
@@ -141,7 +150,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       {audioUrl && (
         <div className="mt-4 text-center">
           <audio ref={audioRef} controls className="w-full">
-            <source src={audioUrl} type="audio/ogg" />
+            <source src={audioUrl} type={audioBlob?.type} />
             Your browser does not support the audio element.
           </audio>
           <button

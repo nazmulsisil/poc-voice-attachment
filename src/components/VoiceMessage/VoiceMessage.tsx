@@ -27,10 +27,10 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       setAudioFiles((prevFiles) => [...prevFiles, ...audioFiles]);
     },
     accept: {
-      "audio/webm": [".webm"],
+      "audio/ogg": [".ogg"],
       "audio/wav": [".wav"],
       "audio/mpeg": [".mp3"],
-      "audio/ogg": [".ogg"],
+      "audio/webm": [".webm"],
       "audio/mp4": [".m4a", ".mp4"],
     },
   });
@@ -50,12 +50,12 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleStartRecording = async () => {
     try {
-      const mimeType = "audio/webm;codecs=opus";
+      const mimeType = "audio/ogg;codecs=opus";
 
-      // if (!MediaRecorder.isTypeSupported(mimeType)) {
-      //   alert("WebM format is not supported on this device.");
-      //   return;
-      // }
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        alert("OGG format is not supported on this device.");
+        return;
+      }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream, { mimeType });
@@ -94,8 +94,8 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleUpload = () => {
     if (audioBlob) {
-      const file = new File([audioBlob], `recording-${Date.now()}.webm`, {
-        type: "audio/webm",
+      const file = new File([audioBlob], `recording-${Date.now()}.ogg`, {
+        type: "audio/ogg",
       });
       setAudioFiles((prevFiles) => [...prevFiles, file]);
       setAudioBlob(null);
@@ -141,7 +141,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       {audioUrl && (
         <div className="mt-4 text-center">
           <audio ref={audioRef} controls className="w-full">
-            <source src={audioUrl} type="audio/webm" />
+            <source src={audioUrl} type="audio/ogg" />
             Your browser does not support the audio element.
           </audio>
           <button

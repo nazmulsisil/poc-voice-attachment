@@ -14,6 +14,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
     null
   );
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(maxRecordingLength);
   const timerRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -39,6 +40,13 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       handleStopRecording();
     }
   }, [timeLeft, recording]);
+
+  useEffect(() => {
+    if (audioBlob) {
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+    }
+  }, [audioBlob]);
 
   const handleStartRecording = async () => {
     try {
@@ -104,6 +112,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       });
       setAudioFiles((prevFiles) => [...prevFiles, file]);
       setAudioBlob(null);
+      setAudioUrl(null);
       alert("Audio file uploaded successfully.");
     }
   };
@@ -142,10 +151,10 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
         </div>
       )}
 
-      {audioBlob && (
+      {audioUrl && (
         <div className="mt-4 text-center">
           <audio ref={audioRef} controls className="w-full">
-            <source src={URL.createObjectURL(audioBlob)} type="audio/webm" />
+            <source src={audioUrl} type="audio/webm" />
             Your browser does not support the audio element.
           </audio>
           <button

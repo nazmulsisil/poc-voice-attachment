@@ -27,7 +27,11 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       setAudioFiles((prevFiles) => [...prevFiles, ...audioFiles]);
     },
     accept: {
+      "audio/webm": [".webm"],
+      "audio/wav": [".wav"],
       "audio/mpeg": [".mp3"],
+      "audio/ogg": [".ogg"],
+      "audio/mp4": [".m4a", ".mp4"],
     },
   });
 
@@ -46,10 +50,10 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleStartRecording = async () => {
     try {
-      const mimeType = "audio/mpeg";
+      const mimeType = "audio/webm;codecs=opus";
 
       if (!MediaRecorder.isTypeSupported(mimeType)) {
-        alert("MP3 format is not supported on this device.");
+        alert("WebM format is not supported on this device.");
         return;
       }
 
@@ -90,8 +94,8 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleUpload = () => {
     if (audioBlob) {
-      const file = new File([audioBlob], `recording-${Date.now()}.mp3`, {
-        type: "audio/mpeg",
+      const file = new File([audioBlob], `recording-${Date.now()}.webm`, {
+        type: "audio/webm",
       });
       setAudioFiles((prevFiles) => [...prevFiles, file]);
       setAudioBlob(null);
@@ -137,7 +141,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       {audioUrl && (
         <div className="mt-4 text-center">
           <audio ref={audioRef} controls className="w-full">
-            <source src={audioUrl} type="audio/mpeg" />
+            <source src={audioUrl} type="audio/webm" />
             Your browser does not support the audio element.
           </audio>
           <button

@@ -23,6 +23,8 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
     { mimeType: "audio/webm;codecs=opus", extension: "webm" },
     { mimeType: "audio/ogg;codecs=opus", extension: "ogg" },
     { mimeType: "audio/mpeg", extension: "mp3" },
+    { mimeType: "audio/mp4", extension: "m4a" },
+    { mimeType: "audio/wav", extension: "wav" },
   ];
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

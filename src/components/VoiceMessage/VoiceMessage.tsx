@@ -27,11 +27,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       setAudioFiles((prevFiles) => [...prevFiles, ...audioFiles]);
     },
     accept: {
-      "audio/webm": [".webm"],
-      "audio/wav": [".wav"],
       "audio/mpeg": [".mp3"],
-      "audio/ogg": [".ogg"],
-      "audio/mp4": [".m4a", ".mp4"],
     },
   });
 
@@ -50,24 +46,10 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleStartRecording = async () => {
     try {
-      const supportedMimeTypes = [
-        "audio/webm;codecs=opus",
-        "audio/webm",
-        "audio/wav",
-        "audio/mpeg",
-        "audio/ogg",
-        "audio/mp4",
-      ];
-      let mimeType = "";
-      for (const type of supportedMimeTypes) {
-        if (MediaRecorder.isTypeSupported(type)) {
-          mimeType = type;
-          break;
-        }
-      }
+      const mimeType = "audio/mpeg";
 
-      if (!mimeType) {
-        alert("No supported audio formats found. Recording cannot start.");
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        alert("MP3 format is not supported on this device.");
         return;
       }
 
@@ -108,12 +90,9 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleUpload = () => {
     if (audioBlob) {
-      const fileExtension = audioBlob.type.split("/")[1];
-      const file = new File(
-        [audioBlob],
-        `recording-${Date.now()}.${fileExtension}`,
-        { type: audioBlob.type }
-      );
+      const file = new File([audioBlob], `recording-${Date.now()}.mp3`, {
+        type: "audio/mpeg",
+      });
       setAudioFiles((prevFiles) => [...prevFiles, file]);
       setAudioBlob(null);
       setAudioUrl(null);
@@ -158,7 +137,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       {audioUrl && (
         <div className="mt-4 text-center">
           <audio ref={audioRef} controls className="w-full">
-            <source src={audioUrl} type={audioBlob?.type} />
+            <source src={audioUrl} type="audio/mpeg" />
             Your browser does not support the audio element.
           </audio>
           <button

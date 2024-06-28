@@ -52,6 +52,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
     try {
       const supportedMimeTypes = [
         "audio/webm;codecs=opus",
+        "audio/webm",
         "audio/wav",
         "audio/mpeg",
         "audio/ogg",
@@ -107,9 +108,12 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleUpload = () => {
     if (audioBlob) {
-      const file = new File([audioBlob], `recording-${Date.now()}.webm`, {
-        type: "audio/webm",
-      });
+      const fileExtension = audioBlob.type.split("/")[1];
+      const file = new File(
+        [audioBlob],
+        `recording-${Date.now()}.${fileExtension}`,
+        { type: audioBlob.type }
+      );
       setAudioFiles((prevFiles) => [...prevFiles, file]);
       setAudioBlob(null);
       setAudioUrl(null);
@@ -154,7 +158,7 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       {audioUrl && (
         <div className="mt-4 text-center">
           <audio ref={audioRef} controls className="w-full">
-            <source src={audioUrl} type="audio/webm" />
+            <source src={audioUrl} type={audioBlob?.type} />
             Your browser does not support the audio element.
           </audio>
           <button

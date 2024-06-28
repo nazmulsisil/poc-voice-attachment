@@ -19,6 +19,14 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
   const timerRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const supportedFormats = [
+    { mimeType: "audio/webm;codecs=opus", extension: "webm" },
+    { mimeType: "audio/ogg;codecs=opus", extension: "ogg" },
+    { mimeType: "audio/mpeg", extension: "mp3" },
+    { mimeType: "audio/mp4", extension: "m4a" },
+    { mimeType: "audio/wav", extension: "wav" },
+  ];
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
       const audioFiles = acceptedFiles.filter((file) =>
@@ -26,13 +34,10 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       );
       setAudioFiles((prevFiles) => [...prevFiles, ...audioFiles]);
     },
-    accept: {
-      "audio/webm": [".webm"],
-      "audio/wav": [".wav"],
-      "audio/mpeg": [".mp3"],
-      "audio/ogg": [".ogg"],
-      "audio/mp4": [".m4a", ".mp4"],
-    },
+    accept: supportedFormats.reduce((acc, format) => {
+      acc[format.mimeType.split(";")[0]] = [`.${format.extension}`];
+      return acc;
+    }, {} as { [key: string]: string[] }),
   });
 
   useEffect(() => {
@@ -50,29 +55,16 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleStartRecording = async () => {
     try {
-      const supportedMimeTypes = [
-        "audio/webm;codecs=opus",
-        "audio/webm",
-        "audio/wav",
-        "audio/mpeg",
-        "audio/ogg",
-        "audio/mp4",
-      ];
-      let mimeType = "";
-      for (const type of supportedMimeTypes) {
-        if (MediaRecorder.isTypeSupported(type)) {
-          mimeType = type;
-          break;
-        }
-      }
-
-      if (!mimeType) {
+      const format = supportedFormats.find(({ mimeType }) =>
+        MediaRecorder.isTypeSupported(mimeType)
+      );
+      if (!format) {
         alert("No supported audio formats found. Recording cannot start.");
         return;
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType });
+      const recorder = new MediaRecorder(stream, { mimeType: format.mimeType });
       setMediaRecorder(recorder);
 
       recorder.ondataavailable = (event) => {
@@ -108,10 +100,12 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleUpload = () => {
     if (audioBlob) {
-      const fileExtension = audioBlob.type.split("/")[1];
+      const format = supportedFormats.find(
+        ({ mimeType }) => mimeType === audioBlob.type
+      );
       const file = new File(
         [audioBlob],
-        `recording-${Date.now()}.${fileExtension}`,
+        `recording-${Date.now()}.${format?.extension}`,
         { type: audioBlob.type }
       );
       setAudioFiles((prevFiles) => [...prevFiles, file]);

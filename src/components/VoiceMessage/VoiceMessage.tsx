@@ -29,6 +29,8 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       "audio/webm": [".webm"],
       "audio/wav": [".wav"],
       "audio/mpeg": [".mp3"],
+      "audio/ogg": [".ogg"],
+      "audio/mp4": [".m4a", ".mp4"],
     },
   });
 
@@ -40,14 +42,22 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
 
   const handleStartRecording = async () => {
     try {
+      const supportedMimeTypes = [
+        "audio/webm;codecs=opus",
+        "audio/wav",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/mp4",
+      ];
       let mimeType = "";
-      if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
-        mimeType = "audio/webm;codecs=opus";
-      } else if (MediaRecorder.isTypeSupported("audio/wav")) {
-        mimeType = "audio/wav";
-      } else if (MediaRecorder.isTypeSupported("audio/mpeg")) {
-        mimeType = "audio/mpeg";
-      } else {
+      for (const type of supportedMimeTypes) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          mimeType = type;
+          break;
+        }
+      }
+
+      if (!mimeType) {
         alert("No supported audio formats found. Recording cannot start.");
         return;
       }
@@ -70,6 +80,9 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
       }, 1000);
     } catch (err) {
       console.error("Error accessing media devices.", err);
+      alert(
+        "Error accessing media devices. Please ensure you have given permission to access the microphone."
+      );
     }
   };
 

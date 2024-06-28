@@ -52,10 +52,10 @@ export const VoiceMessage: FC<VoiceMessageProps> = ({ maxRecordingLength }) => {
     try {
       const mimeType = "audio/webm;codecs=opus";
 
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        alert("WebM format is not supported on this device.");
-        return;
-      }
+      // if (!MediaRecorder.isTypeSupported(mimeType)) {
+      //   alert("WebM format is not supported on this device.");
+      //   return;
+      // }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream, { mimeType });
